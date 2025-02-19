@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { assets } from "../assets/assets";
 import { Link, NavLink } from "react-router-dom";
+import { ShopContext } from "../context/ShopContext";
 
 const NavBar = () => {
   const [visible, setVisible] = useState(false);
+  const { setShowSearch } = useContext(ShopContext);
 
   return (
     <div className="flex items-center justify-between py-5 font-medium">
@@ -49,6 +51,7 @@ const NavBar = () => {
         <img
           src={assets.search_icon}
           className="w-5 cursor-pointer"
+          onClick={() => setShowSearch(true)}
           alt="Search"
         />
 
