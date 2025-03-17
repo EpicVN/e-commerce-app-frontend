@@ -1,11 +1,61 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { ShopContext } from "../context/ShopContext";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const Login = () => {
-  const [currentState, setCurrentState] = useState("Sign Up");
+  const [currentState, setCurrentState] = useState("Login");
+  const { token, setToken, navigate, backendUrl } = useContext(ShopContext);
+
+  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
-  }
+
+    try {
+      if (!backendUrl) {
+        throw new Error("Backend URL is not defined!");
+      }
+
+      const url =
+        currentState === "Sign Up"
+          ? `${backendUrl}/api/user/register`
+          : `${backendUrl}/api/user/login`;
+
+      const requestData =
+        currentState === "Sign Up"
+          ? { name, email, password }
+          : { email, password };
+
+      const response = await axios.post(url, requestData);
+
+      if (response.status === 200 || response.status === 201) {
+        setToken(response.data.token);
+        localStorage.setItem("token", response.data.token);
+        console.log("Login/Register Success:", response.data);
+      } else {
+        toast.error(response.data.message || "Something went wrong!");
+      }
+    } catch (error) {
+      console.error("Request Error:", error);
+
+      if (error.response) {
+        toast.error(error.response.data.message || "Server error occurred!");
+      } else if (error.request) {
+        toast.error("No response from server. Please try again later.");
+      } else {
+        toast.error(error.message);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (token) {
+      navigate("/");
+    }
+  }, [token, navigate]);
 
   return (
     <form
@@ -22,6 +72,7 @@ const Login = () => {
         ""
       ) : (
         <input
+          onChange={(e) => setName(e.target.value)}
           type="text"
           className="w-full px-3 py-2  border border-gray-800"
           placeholder="Name"
@@ -30,6 +81,7 @@ const Login = () => {
       )}
 
       <input
+        onChange={(e) => setEmail(e.target.value)}
         type="email"
         className="w-full px-3 py-2  border border-gray-800"
         placeholder="Email"
@@ -37,6 +89,7 @@ const Login = () => {
       />
 
       <input
+        onChange={(e) => setPassword(e.target.value)}
         type="password"
         className="w-full px-3 py-2  border border-gray-800"
         placeholder="Password"

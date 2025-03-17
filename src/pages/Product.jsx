@@ -7,21 +7,19 @@ import RelatedProducts from "../components/RelatedProducts";
 const Product = () => {
   const { productId } = useParams();
   const { products, currency, addToCart } = useContext(ShopContext);
-  const [productData, setProductData] = useState(false);
+  const [productData, setProductData] = useState(null);
   const [image, setImage] = useState("");
   const [size, setSize] = useState("");
 
   useEffect(() => {
     const fetchProductData = async () => {
-      products.map((item) => {
+      products.forEach((item) => {
         if (item._id === productId) {
           setProductData(item);
-          setImage(item.image[0]);
-          return null;
+          setImage(item.images[0]);
         }
       });
     };
-
     fetchProductData();
   }, [productId, products]);
 
@@ -32,7 +30,7 @@ const Product = () => {
         {/* Product image */}
         <div className="flex-1 flex flex-col-reverse gap-2 sm:flex-row">
           <div className="flex sm:flex-col overflow-x-auto sm:overflow-y-scroll justify-between sm:justify-normal sm:w-[18.7%] w-full">
-            {productData.image.map((item, index) => (
+            {productData.images.map((item, index) => (
               <img
                 key={index}
                 src={item}
@@ -86,7 +84,10 @@ const Product = () => {
             </div>
           </div>
 
-          <button onClick={() => addToCart(productData._id, size)} className="bg-black text-white px-8 py-3 text-sm active:bg-gray-700">
+          <button
+            onClick={() => addToCart(productData._id, size)}
+            className="bg-black text-white px-8 py-3 text-sm active:bg-gray-700"
+          >
             ADD TO CART
           </button>
 
